@@ -1,0 +1,16 @@
+Create an Itinerary for trip to {{location}} for two adults from {{startDate}} to {{endDate}}. The budget should be within {{budget}} for {{numTravelers}} person.  Every day activities must include lunch and dinner and at least one activity. Following are the keywords for the activities: {{keywords}}. Provide the response which has only a json  in a code box with structure:
+{
+  "itinerary": [
+    {
+      "day": "Day 1",
+      "activities": [
+            {
+                "name": "Name of Activity",
+                "location": "Location where the activity will take place",
+                "price_estimate": "Only estimated price for this activity in the currency mentioned in the json for all person",
+                "remarks": "Remarks for the price estimate"
+            }
+      ]
+  }
+]
+}

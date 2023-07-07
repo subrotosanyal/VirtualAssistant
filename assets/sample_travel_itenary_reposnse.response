@@ -1,0 +1,62 @@
+{
+  "itinerary": [
+    {
+      "day": "Day 1",
+      "activities": [
+        {
+          "name": "Reläxing Spä",
+          "location": "The Lodhi Spa",
+          "price_estimate": "4000",
+          "remarks": "Includes a 60 minute full body massage and access to all facilities."
+        },
+        {
+          "name": "Lunch at Paranthe Wali Gali",
+          "location": "Chandni Chowk Market",
+          "price_estimate": "300",
+          "remarks": "Famous for its variety of parathas filled with different flavors and spices."
+        },
+        {
+          "name": "Old Delhi Walking Tour",
+          "location": "Chandni Chowk Market",
+          "price_estimate": "500",
+          "remarks": "Experience the colors, sounds and flavors of Delhi's oldest market."
+        },
+        {
+          "name": "Dinner at Karim's",
+          "location": "Jama Masjid Area",
+          "price_estimate": "800",
+          "remarks": "Famous for its non-vegetarian dishes and Mughlai cuisine."
+        }
+      ]
+    },
+    {
+      "day": "Day 2",
+      "activities": [
+        {
+          "name": "Relaxing Spa",
+          "location": "The Lodhi Spa",
+          "price_estimate": "4000",
+          "remarks": "Includes a 60 minute full body massage and access to all facilities."
+        },
+        {
+          "name": "Lunch at Paranthe Wali Gali",
+          "location": "Chandni Chowk Market",
+          "price_estimate": "300",
+          "remarks": "Famous for its variety of parathas filled with different flavors and spices."
+        },
+        {
+          "name": "Old Delhi Walking Tour",
+          "location": "Chandni Chowk Market",
+          "price_estimate": "500",
+          "remarks": "Experience the colors, sounds and flavors of Delhi's oldest market."
+        },
+        {
+          "name": "Dinner at Karim's",
+          "location": "Jama Masjid Area",
+          "price_estimate": "800",
+          "remarks": "Famous for its non-vegetarian dishes and Mughlai cuisine."
+        }
+      ]
+    }
+  ]
+}
