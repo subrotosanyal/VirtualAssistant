@@ -3,7 +3,7 @@ import 'package:virtual_assistant/screens/usage_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'chat_screen.dart';
-import 'linkedin.dart';
+import 'career_screen.dart';
 import 'update_api_key_screen.dart';
 import 'review_generation_screen.dart';
 
@@ -48,7 +48,7 @@ class MainScreen extends StatelessWidget {
             context,
             Icons.person,
             'Career',
-            CareerInScreen(), // Connect the LinkedInScreen widget here
+            CareerScreen(), // Connect the LinkedInScreen widget here
           ),
           _buildOption(
             context,
