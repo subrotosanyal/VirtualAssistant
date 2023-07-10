@@ -48,7 +48,7 @@ class MainScreen extends StatelessWidget {
             context,
             Icons.person,
             'Career',
-            CareerScreen(), // Connect the LinkedInScreen widget here
+            CareerScreen(apiKey: apiKeySupplier()), // Connect the LinkedInScreen widget here
           ),
           _buildOption(
             context,
