@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:file_picker/file_picker.dart';
+import '../component/collapsable_text_widget.dart';
 import '../util/chat_util.dart';
 
 class CareerScreen extends StatefulWidget {
@@ -16,17 +17,21 @@ class CareerScreen extends StatefulWidget {
 
 class _CareerScreenState extends State<CareerScreen> {
   File? resumeFile;
-  String? resumeText;
+  String? _resumeText;
   bool _isGeneratingRecommendation = false;
   String _recommendation = '';
   bool _isGeneratingProfileHeadline = false;
-  bool _isRecommendationExpanded = false;
-  bool _isProfileHeadlineExpanded = false;
   String _profileHeadline = '';
-  bool isResumeUploaded = false;
-  bool _showTextBox = false;
-  String _selectedRecommendationOption = "Generic";
+  bool _isResumeUploaded = false;
+  bool _showRecommendationTextBox = false;
+  bool _showProfileHeadlineTextBox = false;
   int _numberOfWords = 350;
+  bool _isGeneratingCoverLetter = false;
+  String _coverLetter = '';
+  bool _showCoverLetterTextBox = false;
+  String _roleDescription = '';
+  int _numberOfWordsCoverLetter = 500;
+  final TextEditingController _coverLetterController = TextEditingController();
   final TextEditingController _recommendationController =
       TextEditingController();
   final TextEditingController _profileHeadlineController =
@@ -36,16 +41,18 @@ class _CareerScreenState extends State<CareerScreen> {
   void dispose() {
     _recommendationController.dispose();
     _profileHeadlineController.dispose();
+    _coverLetterController.dispose();
     super.dispose();
   }
 
   final GlobalKey<FormState> _formKeyProfileHeadline = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeyRecommendation = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyCoverLetter = GlobalKey<FormState>();
 
   void copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Text copied to clipboard')),
+      const SnackBar(content: Text('Text copied to clipboard')),
     );
   }
 
@@ -55,19 +62,21 @@ class _CareerScreenState extends State<CareerScreen> {
       updateRecommendation('');
     });
     final message =
-        "Generate a recommendation for a professional in $_numberOfWords in paragraph format (not bullet points) using the text which is extracted from their CV is: $resumeText";
+        "Generate a recommendation for a professional in $_numberOfWords words in paragraph format (not bullet points) using the text which is extracted from their CV is: $_resumeText";
     try {
       final response = await ChatUtility.sendMessage(message, widget.apiKey);
       setState(() {
         updateRecommendation(
-            response.map((choice) => '${choice.toString()}').join('\n'));
+            response.map((choice) => choice.toString()).join('\n'));
       });
     } catch (exp) {
       updateRecommendation(exp.toString());
     } finally {
       setState(() {
         _isGeneratingRecommendation = false;
-        _showTextBox = true;
+        _showRecommendationTextBox = true;
+        _showProfileHeadlineTextBox = false;
+        _showCoverLetterTextBox = false;
       });
     }
   }
@@ -86,17 +95,19 @@ class _CareerScreenState extends State<CareerScreen> {
     });
 
     final message =
-        "Generate a profile headline for a professional using the text which is extracted from their CV is: $resumeText";
+        "Generate a profile headline for a professional using the text which is extracted from their CV is: $_resumeText";
     try {
       final response = await ChatUtility.sendMessage(message, widget.apiKey);
       updateProfileHeadline(
-          response.map((choice) => '${choice.toString()}').join('\n'));
+          response.map((choice) => choice.toString()).join('\n'));
     } catch (exp) {
       updateProfileHeadline(exp.toString());
     } finally {
       setState(() {
         _isGeneratingProfileHeadline = false;
-        _showTextBox = true;
+        _showProfileHeadlineTextBox = true;
+        _showRecommendationTextBox = false;
+        _showCoverLetterTextBox = false;
       });
     }
   }
@@ -105,6 +116,36 @@ class _CareerScreenState extends State<CareerScreen> {
     setState(() {
       _profileHeadline = profileHeadline;
       _profileHeadlineController.text = profileHeadline;
+    });
+  }
+
+  void _generateCoverLetter() async {
+    setState(() {
+      _isGeneratingCoverLetter = true;
+      updateCoverLetter('');
+    });
+
+    final message =
+        "The CV for the person applying for the job is: \n$_resumeText \n\n\n Generate a cover letter for the candidate mentioned in CV in $_numberOfWordsCoverLetter words with the role description: \n$_roleDescription";
+    try {
+      final response = await ChatUtility.sendMessage(message, widget.apiKey);
+      updateCoverLetter(response.map((choice) => choice.toString()).join('\n'));
+    } catch (exp) {
+      updateCoverLetter(exp.toString());
+    } finally {
+      setState(() {
+        _isGeneratingCoverLetter = false;
+        _showCoverLetterTextBox = true;
+        _showProfileHeadlineTextBox = false;
+        _showRecommendationTextBox = false;
+      });
+    }
+  }
+
+  void updateCoverLetter(String coverLetter) {
+    setState(() {
+      _coverLetter = coverLetter;
+      _coverLetterController.text = coverLetter;
     });
   }
 
@@ -127,7 +168,7 @@ class _CareerScreenState extends State<CareerScreen> {
     // Extract all the text from the document.
     String text = extractor.extractText();
     setState(() {
-      resumeText = text;
+      _resumeText = text;
     });
   }
 
@@ -140,7 +181,7 @@ class _CareerScreenState extends State<CareerScreen> {
     if (result != null) {
       setState(() {
         resumeFile = File(result.files.single.path!);
-        isResumeUploaded = true;
+        _isResumeUploaded = true;
       });
       await convertPdfToText();
     }
@@ -159,15 +200,25 @@ class _CareerScreenState extends State<CareerScreen> {
           _buildUploadResumeButton(),
           const SizedBox(height: 20),
           _buildRecommendationButton(),
-          if (isResumeUploaded) ...[
+          if (_isResumeUploaded) ...[
             const SizedBox(height: 16),
             _buildAdvancedOptions(),
           ],
+          _buildCoverLetterButton(),
+          if (_isResumeUploaded) ...[
+            const SizedBox(height: 16),
+            _buildAdvancedOptionsForCoverLetter(),
+          ],
           _buildProfileHeadlineButton(),
-          if (_showTextBox) ...[
+          if (_showRecommendationTextBox) ...[
             _buildRecommendationTextField(),
+          ],
+          if (_showProfileHeadlineTextBox) ...[
             _buildProfileHeadlineTextField(),
           ],
+          if (_showCoverLetterTextBox) ...[
+            _buildCoverLetterTextField(),
+          ]
         ],
       ),
     );
@@ -191,20 +242,20 @@ class _CareerScreenState extends State<CareerScreen> {
   Widget _buildRecommendationButton() {
     return ElevatedButton(
       onPressed: _isGeneratingRecommendation ||
-          resumeText == null ||
-          resumeText!.isEmpty
+              _resumeText == null ||
+              _resumeText!.isEmpty
           ? null
           : () {
-        _generateRecommendation();
-      },
+              _generateRecommendation();
+            },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _isGeneratingRecommendation
-              ? CircularProgressIndicator()
-              : Icon(Icons.rate_review),
-          SizedBox(width: 8),
-          Text('Write a Recommendation'),
+              ? const CircularProgressIndicator()
+              : const Icon(Icons.rate_review),
+          const SizedBox(width: 8),
+          const Text('Write a Recommendation'),
         ],
       ),
     );
@@ -218,33 +269,6 @@ class _CareerScreenState extends State<CareerScreen> {
           style: TextStyle(fontSize: 18),
         ),
         const SizedBox(height: 8),
-        // DropdownButton<String>(
-        //   value: _selectedRecommendationOption,
-        //   onChanged: (value) {
-        //     setState(() {
-        //       _selectedRecommendationOption = value!;
-        //     });
-        //   },
-        //   items: const [
-        //     DropdownMenuItem(
-        //       value: "Generic",
-        //       child: Text('Generic'),
-        //     ),
-        //     DropdownMenuItem(
-        //       value: "Recommend the professional as my subordinate",
-        //       child: Text('Recommend the professional as my subordinate'),
-        //     ),
-        //     DropdownMenuItem(
-        //       value: "Recommend the professional as my manager",
-        //       child: Text('Recommend the professional as my manager'),
-        //     ),
-        //     DropdownMenuItem(
-        //       value: "We worked in two different groups",
-        //       child: Text('We worked in two different groups'),
-        //     ),
-        //   ],
-        // ),
-        // const SizedBox(height: 8),
         Row(
           children: [
             const Text('Number of Words: '),
@@ -268,20 +292,110 @@ class _CareerScreenState extends State<CareerScreen> {
 
   Widget _buildProfileHeadlineButton() {
     return ElevatedButton(
-      onPressed: resumeText == null || resumeText!.isEmpty
+      onPressed: _resumeText == null || _resumeText!.isEmpty
           ? null
           : () {
-        _generateProfileHeadline();
-      },
+              _generateProfileHeadline();
+            },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _isGeneratingProfileHeadline
-              ? CircularProgressIndicator()
-              : Icon(Icons.edit),
-          SizedBox(width: 8),
-          Text('Write a Headline'),
+              ? const CircularProgressIndicator()
+              : const Icon(Icons.edit),
+          const SizedBox(width: 8),
+          const Text('Write a Headline'),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCoverLetterButton() {
+    return ElevatedButton(
+      onPressed:
+          _isGeneratingCoverLetter || _resumeText == null || _resumeText!.isEmpty
+              ? null
+              : () {
+                  _generateCoverLetter();
+                },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _isGeneratingCoverLetter
+              ? const CircularProgressIndicator()
+              : const Icon(Icons.description),
+          const SizedBox(width: 8),
+          const Text('Write a Cover Letter'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdvancedOptionsForCoverLetter() {
+    return Column(
+      children: [
+        // Existing code...
+
+        const SizedBox(height: 8),
+        ExpansionTile(
+          title: const Text(
+            'Cover Letter Advanced Options',
+            style: TextStyle(fontSize: 18),
+          ),
+          children: [
+            const SizedBox(height: 8),
+            const Text('Role Description:'),
+            TextFormField(
+              initialValue: _roleDescription,
+              onChanged: (value) {
+                setState(() {
+                  _roleDescription = value;
+                });
+              },
+              validator: (value) {
+                if (value!.isEmpty) {
+                  return 'Please enter a role description';
+                }
+                return null;
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Text('Number of Words: '),
+                Text(_numberOfWordsCoverLetter.toString()),
+              ],
+            ),
+            Slider(
+              value: _numberOfWordsCoverLetter.toDouble(),
+              min: 200,
+              max: 1500,
+              divisions: 13,
+              onChanged: (value) {
+                setState(() {
+                  _numberOfWordsCoverLetter = value.toInt();
+                });
+              },
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCoverLetterTextField() {
+    return Form(
+      key: _formKeyCoverLetter,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: CollapsibleTextWidget(
+          header: 'Cover Letter',
+          text: _coverLetter,
+          controller: _coverLetterController,
+        ),
       ),
     );
   }
@@ -291,40 +405,10 @@ class _CareerScreenState extends State<CareerScreen> {
       key: _formKeyRecommendation,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ExpansionTile(
-              title: const Text(
-                'Recommendation',
-                style: TextStyle(fontSize: 18),
-              ),
-              onExpansionChanged: (value) {
-                setState(() {
-                  _isRecommendationExpanded = value;
-                });
-              },
-              children: [
-                SingleChildScrollView(
-                  child: TextFormField(
-                    controller: _recommendationController,
-                    readOnly: true,
-                    maxLines: 5,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: () {
-                    copyToClipboard(_recommendation);
-                  },
-                ),
-              ],
-            ),
-            if (!_isRecommendationExpanded) const SizedBox(height: 8),
-          ],
+        child: CollapsibleTextWidget(
+          header: 'Recommendation',
+          text: _recommendation,
+          controller: _recommendationController,
         ),
       ),
     );
@@ -335,40 +419,10 @@ class _CareerScreenState extends State<CareerScreen> {
       key: _formKeyProfileHeadline,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ExpansionTile(
-              title: const Text(
-                'Profile Headline',
-                style: TextStyle(fontSize: 18),
-              ),
-              onExpansionChanged: (value) {
-                setState(() {
-                  _isProfileHeadlineExpanded = value;
-                });
-              },
-              children: [
-                SingleChildScrollView(
-                  child: TextFormField(
-                    controller: _profileHeadlineController,
-                    readOnly: true,
-                    maxLines: 2,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.copy),
-                  onPressed: () {
-                    copyToClipboard(_profileHeadline);
-                  },
-                ),
-              ],
-            ),
-            if (!_isProfileHeadlineExpanded) const SizedBox(height: 8),
-          ],
+        child: CollapsibleTextWidget(
+          header: 'Profile Headline',
+          text: _profileHeadline,
+          controller: _profileHeadlineController,
         ),
       ),
     );

@@ -5,20 +5,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  runApp(AssistantApp(sharedPreferences: sharedPreferences));
+  runApp(AssistantApp());
 }
 
 class AssistantApp extends StatelessWidget {
-  final SharedPreferences sharedPreferences;
-
-  AssistantApp({required this.sharedPreferences});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Assistant',
-      home: MainScreen(sharedPreferences: sharedPreferences),
+      home: MainScreen(),
     );
   }
 }

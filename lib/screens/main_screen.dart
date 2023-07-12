@@ -1,24 +1,39 @@
-import 'package:virtual_assistant/screens/travel_itinerary_screen.dart';
-import 'package:virtual_assistant/screens/usage_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'chat_screen.dart';
 import 'career_screen.dart';
 import 'update_api_key_screen.dart';
 import 'review_generation_screen.dart';
+import 'usage_screen.dart';
+import 'travel_itinerary_screen.dart';
 
 typedef Supplier<T> = T Function();
 
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
 
-class MainScreen extends StatelessWidget {
-  final SharedPreferences sharedPreferences;
+class _MainScreenState extends State<MainScreen> {
+  SharedPreferences? _sharedPreferences;
 
-  MainScreen({required this.sharedPreferences});
+  @override
+  void initState() {
+    super.initState();
+    _loadSharedPreferences();
+  }
+
+  Future<void> _loadSharedPreferences() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {});
+  }
+
+  Supplier<String> get apiKeySupplier {
+    return () => _sharedPreferences?.getString('apiKey') ?? '';
+  }
 
   @override
   Widget build(BuildContext context) {
-    apiKeySupplier() => sharedPreferences.getString('apiKey') ?? '';
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assistant'),
@@ -48,7 +63,7 @@ class MainScreen extends StatelessWidget {
             context,
             Icons.person,
             'Career',
-            CareerScreen(apiKey: apiKeySupplier()), // Connect the LinkedInScreen widget here
+            CareerScreen(apiKey: apiKeySupplier()),
           ),
           _buildOption(
             context,
@@ -60,7 +75,9 @@ class MainScreen extends StatelessWidget {
             context,
             Icons.settings,
             'Update API Key',
-            UpdateApiKeyScreen(sharedPreferences: sharedPreferences),
+            _sharedPreferences != null
+                ? UpdateApiKeyScreen(sharedPreferences: _sharedPreferences!)
+                : Container(), // Replace with appropriate fallback widget
           ),
         ],
       ),
@@ -73,6 +90,7 @@ class MainScreen extends StatelessWidget {
       String label,
       Widget screen,
       ) {
+    _loadSharedPreferences();
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -83,7 +101,11 @@ class MainScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 48, color: Theme.of(context).primaryColor,),
+          Icon(
+            icon,
+            size: 48,
+            color: Theme.of(context).primaryColor,
+          ),
           const SizedBox(height: 8),
           Text(label),
         ],
@@ -91,4 +113,3 @@ class MainScreen extends StatelessWidget {
     );
   }
 }
-

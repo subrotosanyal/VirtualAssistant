@@ -13,9 +13,9 @@ class ReviewGenerationScreen extends StatefulWidget {
 }
 
 class _ReviewGenerationScreenState extends State<ReviewGenerationScreen> {
-  TextEditingController _sentimentController = TextEditingController();
-  TextEditingController _serviceTypeController = TextEditingController();
-  TextEditingController _serviceNameController = TextEditingController();
+  final TextEditingController _sentimentController = TextEditingController();
+  final TextEditingController _serviceTypeController = TextEditingController();
+  final TextEditingController _serviceNameController = TextEditingController();
   String _review = '';
   bool _isGeneratingReview = false;
 
@@ -41,7 +41,7 @@ class _ReviewGenerationScreenState extends State<ReviewGenerationScreen> {
 
     setState(() {
       _isGeneratingReview = false;
-      _review = response.map((choice) => '${choice.toString()}').join('\n');
+      _review = response.map((choice) => choice.toString()).join('\n');
     });
   }
 
@@ -53,7 +53,7 @@ class _ReviewGenerationScreenState extends State<ReviewGenerationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Generate Review'),
+        title: const Text('Generate Review'),
       ),
       body: SingleChildScrollView( // Wrap the Column with SingleChildScrollView
         child: Padding(
@@ -96,9 +96,9 @@ class _ReviewGenerationScreenState extends State<ReviewGenerationScreen> {
                       'Review:',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(_review),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: _shareReview,
                       child: const Text('Share Review'),
