@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -70,7 +69,7 @@ class Day {
 class TravelItineraryScreen extends StatefulWidget {
   final String apiKey;
 
-  TravelItineraryScreen({required this.apiKey});
+  const TravelItineraryScreen({required this.apiKey});
 
   @override
   _TravelItineraryScreenState createState() => _TravelItineraryScreenState();
@@ -144,8 +143,6 @@ class _TravelItineraryScreenState extends State<TravelItineraryScreen> {
       // Save the image temporarily
       final tempPath = (await path_provider.getTemporaryDirectory()).path;
       final imagePath = '$tempPath/itinerary.png';
-      final imageFile =
-          await File(imagePath).writeAsBytes(image.buffer.asUint8List());
       // Share the image
       Share.shareFiles([imagePath],
           subject:
@@ -274,7 +271,7 @@ class _TravelItineraryScreenState extends State<TravelItineraryScreen> {
         title: const Text('Travel Itinerary'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -289,7 +286,7 @@ class _TravelItineraryScreenState extends State<TravelItineraryScreen> {
                     ),
                   ),
                 ),
-                SizedBox(width: 16.0),
+                const SizedBox(width: 16.0),
                 Expanded(
                   flex: 2,
                   child: TextField(
@@ -339,7 +336,7 @@ class _TravelItineraryScreenState extends State<TravelItineraryScreen> {
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 365)),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
                       );
                       if (selectedDate != null) {
                         setState(() {
@@ -360,19 +357,19 @@ class _TravelItineraryScreenState extends State<TravelItineraryScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _budgetController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Budget',
                     ),
                     keyboardType: TextInputType.number,
                   ),
                 ),
-                SizedBox(width: 16.0),
+                const SizedBox(width: 16.0),
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _selectedCurrency,

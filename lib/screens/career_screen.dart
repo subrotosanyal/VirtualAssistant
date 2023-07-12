@@ -22,20 +22,24 @@ class _CareerScreenState extends State<CareerScreen> {
   String _recommendation = '';
   bool _isGeneratingProfileHeadline = false;
   String _profileHeadline = '';
+  bool _isGeneratingCoverLetter = false;
+  String _coverLetter = '';
   bool _isResumeUploaded = false;
   bool _showRecommendationTextBox = false;
   bool _showProfileHeadlineTextBox = false;
-  int _numberOfWords = 350;
-  bool _isGeneratingCoverLetter = false;
-  String _coverLetter = '';
   bool _showCoverLetterTextBox = false;
-  String _roleDescription = '';
+  int _numberOfWords = 350;
   int _numberOfWordsCoverLetter = 500;
+  String _roleDescription = '';
   final TextEditingController _coverLetterController = TextEditingController();
   final TextEditingController _recommendationController =
       TextEditingController();
   final TextEditingController _profileHeadlineController =
       TextEditingController();
+
+  final GlobalKey<FormState> _formKeyProfileHeadline = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyRecommendation = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKeyCoverLetter = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -44,10 +48,6 @@ class _CareerScreenState extends State<CareerScreen> {
     _coverLetterController.dispose();
     super.dispose();
   }
-
-  final GlobalKey<FormState> _formKeyProfileHeadline = GlobalKey<FormState>();
-  final GlobalKey<FormState> _formKeyRecommendation = GlobalKey<FormState>();
-  final GlobalKey<FormState> _formKeyCoverLetter = GlobalKey<FormState>();
 
   void copyToClipboard(String text) {
     Clipboard.setData(ClipboardData(text: text));
@@ -197,71 +197,142 @@ class _CareerScreenState extends State<CareerScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 20),
-          _buildUploadResumeButton(),
+          UploadResumeButton(uploadResume: uploadResume),
           const SizedBox(height: 20),
-          _buildRecommendationButton(),
+          RecommendationButton(
+            isGeneratingRecommendation: _isGeneratingRecommendation,
+            resumeText: _resumeText,
+            generateRecommendation: _generateRecommendation,
+          ),
           if (_isResumeUploaded) ...[
             const SizedBox(height: 16),
-            _buildAdvancedOptions(),
+            AdvancedOptionsSlider(
+              numberOfWords: _numberOfWords,
+              updateNumberOfWords: (value) {
+                setState(() {
+                  _numberOfWords = value.toInt();
+                });
+              },
+            ),
           ],
-          _buildCoverLetterButton(),
+          ProfileHeadlineButton(
+            resumeText: _resumeText,
+            isGeneratingProfileHeadline: _isGeneratingProfileHeadline,
+            generateProfileHeadline: _generateProfileHeadline,
+          ),
           if (_isResumeUploaded) ...[
             const SizedBox(height: 16),
-            _buildAdvancedOptionsForCoverLetter(),
+            CoverLetterAdvancedOptions(
+              roleDescription: _roleDescription,
+              numberOfWordsCoverLetter: _numberOfWordsCoverLetter,
+              updateRoleDescription: (value) {
+                setState(() {
+                  _roleDescription = value;
+                });
+              },
+              updateNumberOfWordsCoverLetter: (value) {
+                setState(() {
+                  _numberOfWordsCoverLetter = value.toInt();
+                });
+              },
+            ),
           ],
-          _buildProfileHeadlineButton(),
+          CoverLetterButton(
+            isGeneratingCoverLetter: _isGeneratingCoverLetter,
+            resumeText: _resumeText,
+            generateCoverLetter: _generateCoverLetter,
+          ),
           if (_showRecommendationTextBox) ...[
-            _buildRecommendationTextField(),
+            RecommendationTextField(
+              recommendation: _recommendation,
+              controller: _recommendationController,
+              formKeyProfileHeadline: _formKeyRecommendation,
+            ),
           ],
           if (_showProfileHeadlineTextBox) ...[
-            _buildProfileHeadlineTextField(),
+            ProfileHeadlineTextField(
+              profileHeadline: _profileHeadline,
+              controller: _profileHeadlineController,
+              formKeyProfileHeadline: _formKeyProfileHeadline,
+            ),
           ],
           if (_showCoverLetterTextBox) ...[
-            _buildCoverLetterTextField(),
+            CoverLetterTextField(
+                coverLetter: _coverLetter,
+                controller: _coverLetterController,
+                formKeyCoverLetter: _formKeyCoverLetter),
           ]
         ],
       ),
     );
   }
+}
 
-  Widget _buildUploadResumeButton() {
+class UploadResumeButton extends StatelessWidget {
+  final Function() uploadResume;
+
+  const UploadResumeButton({required this.uploadResume});
+
+  @override
+  Widget build(BuildContext context) {
     return Center(
       child: FractionallySizedBox(
         widthFactor: 0.5, // Set the desired width factor
         child: ElevatedButton.icon(
-          onPressed: () {
-            uploadResume();
-          },
+          onPressed: uploadResume,
           icon: const Icon(Icons.cloud_upload),
           label: const Text('Upload Resume'),
         ),
       ),
     );
   }
+}
 
-  Widget _buildRecommendationButton() {
+class RecommendationButton extends StatelessWidget {
+  final bool isGeneratingRecommendation;
+  final String? resumeText;
+  final Function() generateRecommendation;
+
+  const RecommendationButton({
+    required this.isGeneratingRecommendation,
+    required this.resumeText,
+    required this.generateRecommendation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: _isGeneratingRecommendation ||
-              _resumeText == null ||
-              _resumeText!.isEmpty
+      onPressed: isGeneratingRecommendation ||
+              resumeText == null ||
+              resumeText!.isEmpty
           ? null
-          : () {
-              _generateRecommendation();
-            },
+          : generateRecommendation,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _isGeneratingRecommendation
+          isGeneratingRecommendation
               ? const CircularProgressIndicator()
               : const Icon(Icons.rate_review),
           const SizedBox(width: 8),
           const Text('Write a Recommendation'),
+          const Divider(),
         ],
       ),
     );
   }
+}
 
-  Widget _buildAdvancedOptions() {
+class AdvancedOptionsSlider extends StatelessWidget {
+  final int numberOfWords;
+  final Function(double) updateNumberOfWords;
+
+  const AdvancedOptionsSlider({
+    required this.numberOfWords,
+    required this.updateNumberOfWords,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         const Text(
@@ -272,157 +343,214 @@ class _CareerScreenState extends State<CareerScreen> {
         Row(
           children: [
             const Text('Number of Words: '),
-            Text(_numberOfWords.toString()),
+            Text(numberOfWords.toString()),
           ],
         ),
         Slider(
-          value: _numberOfWords.toDouble(),
+          value: numberOfWords.toDouble(),
           min: 100,
           max: 1000,
           divisions: 9,
-          onChanged: (value) {
-            setState(() {
-              _numberOfWords = value.toInt();
-            });
-          },
+          onChanged: updateNumberOfWords,
         ),
       ],
     );
   }
+}
 
-  Widget _buildProfileHeadlineButton() {
+class ProfileHeadlineButton extends StatelessWidget {
+  final String? resumeText;
+  final bool isGeneratingProfileHeadline;
+  final Function() generateProfileHeadline;
+
+  const ProfileHeadlineButton({
+    required this.resumeText,
+    required this.isGeneratingProfileHeadline,
+    required this.generateProfileHeadline,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: _resumeText == null || _resumeText!.isEmpty
+      onPressed: resumeText == null || resumeText!.isEmpty
           ? null
-          : () {
-              _generateProfileHeadline();
-            },
+          : generateProfileHeadline,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _isGeneratingProfileHeadline
+          isGeneratingProfileHeadline
               ? const CircularProgressIndicator()
               : const Icon(Icons.edit),
           const SizedBox(width: 8),
           const Text('Write a Headline'),
+          const Divider(),
         ],
       ),
     );
   }
+}
 
-  Widget _buildCoverLetterButton() {
+class CoverLetterButton extends StatelessWidget {
+  final bool isGeneratingCoverLetter;
+  final String? resumeText;
+  final Function() generateCoverLetter;
+
+  const CoverLetterButton({
+    required this.isGeneratingCoverLetter,
+    required this.resumeText,
+    required this.generateCoverLetter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed:
-          _isGeneratingCoverLetter || _resumeText == null || _resumeText!.isEmpty
+          isGeneratingCoverLetter || resumeText == null || resumeText!.isEmpty
               ? null
-              : () {
-                  _generateCoverLetter();
-                },
+              : generateCoverLetter,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _isGeneratingCoverLetter
+          isGeneratingCoverLetter
               ? const CircularProgressIndicator()
               : const Icon(Icons.description),
           const SizedBox(width: 8),
           const Text('Write a Cover Letter'),
+          const Divider(),
         ],
       ),
     );
   }
+}
 
-  Widget _buildAdvancedOptionsForCoverLetter() {
+class CoverLetterAdvancedOptions extends StatelessWidget {
+  final String roleDescription;
+  final int numberOfWordsCoverLetter;
+  final Function(String) updateRoleDescription;
+  final Function(double) updateNumberOfWordsCoverLetter;
+
+  const CoverLetterAdvancedOptions({
+    required this.roleDescription,
+    required this.numberOfWordsCoverLetter,
+    required this.updateRoleDescription,
+    required this.updateNumberOfWordsCoverLetter,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        // Existing code...
-
         const SizedBox(height: 8),
-        ExpansionTile(
-          title: const Text(
-            'Cover Letter Advanced Options',
-            style: TextStyle(fontSize: 18),
+        const Text(
+          'Advanced Options',
+          style: TextStyle(fontSize: 18),
+        ),
+        const SizedBox(height: 8),
+        const Text('Role Description:'),
+        TextFormField(
+          initialValue: roleDescription,
+          onChanged: updateRoleDescription,
+          validator: (value) {
+            if (value!.isEmpty) {
+              return 'Please enter a role description';
+            }
+            return null;
+          },
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
           ),
+        ),
+        const SizedBox(height: 16),
+        Row(
           children: [
-            const SizedBox(height: 8),
-            const Text('Role Description:'),
-            TextFormField(
-              initialValue: _roleDescription,
-              onChanged: (value) {
-                setState(() {
-                  _roleDescription = value;
-                });
-              },
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return 'Please enter a role description';
-                }
-                return null;
-              },
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Text('Number of Words: '),
-                Text(_numberOfWordsCoverLetter.toString()),
-              ],
-            ),
-            Slider(
-              value: _numberOfWordsCoverLetter.toDouble(),
-              min: 200,
-              max: 1500,
-              divisions: 13,
-              onChanged: (value) {
-                setState(() {
-                  _numberOfWordsCoverLetter = value.toInt();
-                });
-              },
-            ),
+            const Text('Number of Words: '),
+            Text(numberOfWordsCoverLetter.toString()),
           ],
+        ),
+        Slider(
+          value: numberOfWordsCoverLetter.toDouble(),
+          min: 200,
+          max: 1500,
+          divisions: 13,
+          onChanged: updateNumberOfWordsCoverLetter,
         ),
       ],
     );
   }
+}
 
-  Widget _buildCoverLetterTextField() {
-    return Form(
-      key: _formKeyCoverLetter,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: CollapsibleTextWidget(
-          header: 'Cover Letter',
-          text: _coverLetter,
-          controller: _coverLetterController,
-        ),
-      ),
-    );
-  }
+class RecommendationTextField extends StatelessWidget {
+  final String recommendation;
+  final TextEditingController controller;
+  final GlobalKey<FormState> formKeyProfileHeadline;
 
-  Widget _buildRecommendationTextField() {
+  const RecommendationTextField(
+      {required this.recommendation,
+      required this.controller,
+      required this.formKeyProfileHeadline});
+
+  @override
+  Widget build(BuildContext context) {
     return Form(
-      key: _formKeyRecommendation,
+      key: formKeyProfileHeadline,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CollapsibleTextWidget(
           header: 'Recommendation',
-          text: _recommendation,
-          controller: _recommendationController,
+          text: recommendation,
+          controller: controller,
         ),
       ),
     );
   }
+}
 
-  Widget _buildProfileHeadlineTextField() {
+class ProfileHeadlineTextField extends StatelessWidget {
+  final String profileHeadline;
+  final TextEditingController controller;
+  final GlobalKey<FormState> formKeyProfileHeadline;
+
+  const ProfileHeadlineTextField(
+      {required this.profileHeadline,
+      required this.controller,
+      required this.formKeyProfileHeadline});
+
+  @override
+  Widget build(BuildContext context) {
     return Form(
-      key: _formKeyProfileHeadline,
+      key: formKeyProfileHeadline,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CollapsibleTextWidget(
           header: 'Profile Headline',
-          text: _profileHeadline,
-          controller: _profileHeadlineController,
+          text: profileHeadline,
+          controller: controller,
+        ),
+      ),
+    );
+  }
+}
+
+class CoverLetterTextField extends StatelessWidget {
+  final String coverLetter;
+  final TextEditingController controller;
+  final GlobalKey<FormState> formKeyCoverLetter;
+
+  const CoverLetterTextField(
+      {required this.coverLetter,
+      required this.controller,
+      required this.formKeyCoverLetter});
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: formKeyCoverLetter,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: CollapsibleTextWidget(
+          header: 'Cover Letter',
+          text: coverLetter,
+          controller: controller,
         ),
       ),
     );
