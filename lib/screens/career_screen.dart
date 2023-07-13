@@ -6,6 +6,7 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:file_picker/file_picker.dart';
 
 import '../component/collapsable_text_widget.dart';
+import '../component/collapsable_widget.dart';
 import '../util/chat_util.dart';
 
 class CareerScreen extends StatefulWidget {
@@ -192,8 +193,8 @@ class _CareerScreenState extends State<CareerScreen> {
         widthFactor: 0.5,
         child: ElevatedButton.icon(
           onPressed: uploadResume,
-          icon: Icon(Icons.cloud_upload),
-          label: Text('Upload Resume'),
+          icon: const Icon(Icons.cloud_upload),
+          label: const Text('Upload Resume'),
         ),
       ),
     );
@@ -212,40 +213,42 @@ class _CareerScreenState extends State<CareerScreen> {
           _isGeneratingRecommendation
               ? CircularProgressIndicator()
               : Icon(Icons.rate_review),
-          SizedBox(width: 8),
-          Text('Write a Recommendation'),
-          Divider(),
+          const SizedBox(width: 8),
+          const Text('Write a Recommendation'),
+          const Divider(),
         ],
       ),
     );
   }
 
-  Widget buildAdvancedOptionsSlider() {
-    return Column(
-      children: [
-        Text(
-          'Advanced Options',
-          style: TextStyle(fontSize: 18),
-        ),
-        SizedBox(height: 8),
-        Row(
-          children: [
-            Text('Number of Words: '),
-            Text(_numberOfWords.toString()),
-          ],
-        ),
-        Slider(
-          value: _numberOfWords.toDouble(),
-          min: 100,
-          max: 1000,
-          divisions: 9,
-          onChanged: (value) {
-            setState(() {
-              _numberOfWords = value.toInt();
-            });
-          },
-        ),
-      ],
+  Widget buildRecommendationAdvancedOptions() {
+    return CollapsibleWidget(
+      header: const Text(
+        'Advanced Options',
+        style: TextStyle(fontSize: 18),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Text('Number of Words: '),
+              Text(_numberOfWords.toString()),
+            ],
+          ),
+          Slider(
+            value: _numberOfWords.toDouble(),
+            min: 100,
+            max: 1000,
+            divisions: 9,
+            onChanged: (value) {
+              setState(() {
+                _numberOfWords = value.toInt();
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -258,62 +261,63 @@ class _CareerScreenState extends State<CareerScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _isGeneratingProfileHeadline
-              ? CircularProgressIndicator()
-              : Icon(Icons.edit),
-          SizedBox(width: 8),
-          Text('Write a Headline'),
-          Divider(),
+              ? const CircularProgressIndicator()
+              : const Icon(Icons.edit),
+          const SizedBox(width: 8),
+          const Text('Write a Headline'),
+          const Divider(),
         ],
       ),
     );
   }
 
   Widget buildCoverLetterAdvancedOptions() {
-    return Column(
-      children: [
-        SizedBox(height: 8),
-        Text(
-          'Advanced Options',
-          style: TextStyle(fontSize: 18),
-        ),
-        SizedBox(height: 8),
-        Text('Role Description:'),
-        TextFormField(
-          initialValue: _roleDescription,
-          onChanged: (value) {
-            setState(() {
-              _roleDescription = value;
-            });
-          },
-          validator: (value) {
-            if (value!.isEmpty) {
-              return 'Please enter a role description';
-            }
-            return null;
-          },
-          decoration: InputDecoration(
-            border: OutlineInputBorder(),
+    return CollapsibleWidget(
+      header: const Text(
+        'Advanced Options',
+        style: TextStyle(fontSize: 18),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          const Text('Role Description:'),
+          TextFormField(
+            initialValue: _roleDescription,
+            onChanged: (value) {
+              setState(() {
+                _roleDescription = value;
+              });
+            },
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Please enter a role description';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+            ),
           ),
-        ),
-        SizedBox(height: 16),
-        Row(
-          children: [
-            Text('Number of Words: '),
-            Text(_numberOfWordsCoverLetter.toString()),
-          ],
-        ),
-        Slider(
-          value: _numberOfWordsCoverLetter.toDouble(),
-          min: 200,
-          max: 1500,
-          divisions: 13,
-          onChanged: (value) {
-            setState(() {
-              _numberOfWordsCoverLetter = value.toInt();
-            });
-          },
-        ),
-      ],
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Text('Number of Words: '),
+              Text(_numberOfWordsCoverLetter.toString()),
+            ],
+          ),
+          Slider(
+            value: _numberOfWordsCoverLetter.toDouble(),
+            min: 200,
+            max: 1500,
+            divisions: 13,
+            onChanged: (value) {
+              setState(() {
+                _numberOfWordsCoverLetter = value.toInt();
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -327,11 +331,11 @@ class _CareerScreenState extends State<CareerScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _isGeneratingCoverLetter
-              ? CircularProgressIndicator()
-              : Icon(Icons.description),
-          SizedBox(width: 8),
-          Text('Write a Cover Letter'),
-          Divider(),
+              ? const CircularProgressIndicator()
+              : const Icon(Icons.description),
+          const SizedBox(width: 8),
+          const Text('Write a Cover Letter'),
+          const Divider(),
         ],
       ),
     );
@@ -395,14 +399,14 @@ class _CareerScreenState extends State<CareerScreen> {
             buildRecommendationButton(),
             if (_isResumeUploaded) ...[
               const SizedBox(height: 16),
-              buildAdvancedOptionsSlider(),
+              buildRecommendationAdvancedOptions(),
             ],
-            buildProfileHeadlineButton(),
+            buildCoverLetterButton(),
             if (_isResumeUploaded) ...[
               const SizedBox(height: 16),
               buildCoverLetterAdvancedOptions(),
             ],
-            buildCoverLetterButton(),
+            buildProfileHeadlineButton(),
             if (_showRecommendationTextBox) ...[
               buildRecommendationTextField(),
             ],
@@ -414,65 +418,6 @@ class _CareerScreenState extends State<CareerScreen> {
             ],
           ],
         ),
-      ),
-    );
-  }
-}
-
-class CollapsibleTextWidget extends StatefulWidget {
-  final String header;
-  final String text;
-  final TextEditingController controller;
-
-  const CollapsibleTextWidget({
-    required this.header,
-    required this.text,
-    required this.controller,
-  });
-
-  @override
-  _CollapsibleTextWidgetState createState() => _CollapsibleTextWidgetState();
-}
-
-class _CollapsibleTextWidgetState extends State<CollapsibleTextWidget> {
-  bool _isExpanded = false;
-
-  void toggleExpanded() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            title: Text(
-              widget.header,
-              style: TextStyle(fontSize: 18),
-            ),
-            trailing: IconButton(
-              icon: _isExpanded
-                  ? Icon(Icons.keyboard_arrow_up)
-                  : Icon(Icons.keyboard_arrow_down),
-              onPressed: toggleExpanded,
-            ),
-          ),
-          if (_isExpanded)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                controller: widget.controller,
-                maxLines: null,
-                readOnly: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
