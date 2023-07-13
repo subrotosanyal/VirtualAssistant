@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'about_virtual_assistant.dart';
 import 'chat_screen.dart';
 import 'career_screen.dart';
 import 'update_api_key_screen.dart';
@@ -78,6 +79,12 @@ class _MainScreenState extends State<MainScreen> {
             _sharedPreferences != null
                 ? UpdateApiKeyScreen(sharedPreferences: _sharedPreferences!)
                 : Container(), // Replace with appropriate fallback widget
+          ),
+          _buildOption(
+            context,
+            Icons.info,
+            'About Virtual Assistant',
+            AboutMeScreen(),
           ),
         ],
       ),

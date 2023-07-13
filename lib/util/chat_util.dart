@@ -6,7 +6,7 @@ import 'dart:convert';
 
 class ChatUtility {
   static Future<List<String>> sendMessage(String message, String apiKey) async {
-    bool mockIt = false;
+    bool mockIt = true;
     const apiUrl = 'https://api.openai.com/v1/chat/completions';
     final headers = {
       'content-type': 'application/json; charset=utf-8',
@@ -33,7 +33,7 @@ class ChatUtility {
         var reasonForFailure = response.reasonPhrase;
         var responseCode = response.statusCode;
         throw Exception(
-            'Failed to communicate with the Chat GPT API because \'$reasonForFailure\' and code \'$responseCode\'');
+            'Failed to communicate with the server because \'$reasonForFailure\' and code \'$responseCode\'');
       }
     } else {
       return getRandomStrings(100, 100);
