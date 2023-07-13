@@ -211,8 +211,8 @@ class _CareerScreenState extends State<CareerScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _isGeneratingRecommendation
-              ? CircularProgressIndicator()
-              : Icon(Icons.rate_review),
+              ? const CircularProgressIndicator()
+              : const Icon(Icons.rate_review),
           const SizedBox(width: 8),
           const Text('Write a Recommendation'),
           const Divider(),
@@ -294,7 +294,7 @@ class _CareerScreenState extends State<CareerScreen> {
               }
               return null;
             },
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               border: OutlineInputBorder(),
             ),
           ),
