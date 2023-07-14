@@ -36,9 +36,9 @@ class _CareerScreenState extends State<CareerScreen> {
   String _roleDescription = '';
   final TextEditingController _coverLetterController = TextEditingController();
   final TextEditingController _recommendationController =
-  TextEditingController();
+      TextEditingController();
   final TextEditingController _profileHeadlineController =
-  TextEditingController();
+      TextEditingController();
 
   final GlobalKey<FormState> _formKeyProfileHeadline = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKeyRecommendation = GlobalKey<FormState>();
@@ -163,7 +163,8 @@ class _CareerScreenState extends State<CareerScreen> {
   }
 
   Future<void> convertPdfToText() async {
-    final document = PdfDocument(inputBytes: await readDocumentData(resumeFile!));
+    final document =
+        PdfDocument(inputBytes: await readDocumentData(resumeFile!));
 
     final extractor = PdfTextExtractor(document);
     final text = extractor.extractText();
@@ -203,8 +204,8 @@ class _CareerScreenState extends State<CareerScreen> {
   Widget buildRecommendationButton() {
     return ElevatedButton(
       onPressed: _isGeneratingRecommendation ||
-          _resumeText == null ||
-          _resumeText!.isEmpty
+              _resumeText == null ||
+              _resumeText!.isEmpty
           ? null
           : _generateRecommendation,
       child: Row(
@@ -215,7 +216,6 @@ class _CareerScreenState extends State<CareerScreen> {
               : const Icon(Icons.rate_review),
           const SizedBox(width: 8),
           const Text('Write a Recommendation'),
-          const Divider(),
         ],
       ),
     );
@@ -225,7 +225,7 @@ class _CareerScreenState extends State<CareerScreen> {
     return CollapsibleWidget(
       header: const Text(
         'Advanced Options',
-        style: TextStyle(fontSize: 18),
+        style: TextStyle(fontSize: 14),
       ),
       child: Column(
         children: [
@@ -265,7 +265,6 @@ class _CareerScreenState extends State<CareerScreen> {
               : const Icon(Icons.edit),
           const SizedBox(width: 8),
           const Text('Write a Headline'),
-          const Divider(),
         ],
       ),
     );
@@ -275,7 +274,7 @@ class _CareerScreenState extends State<CareerScreen> {
     return CollapsibleWidget(
       header: const Text(
         'Advanced Options',
-        style: TextStyle(fontSize: 18),
+        style: TextStyle(fontSize: 14),
       ),
       child: Column(
         children: [
@@ -323,8 +322,9 @@ class _CareerScreenState extends State<CareerScreen> {
 
   Widget buildCoverLetterButton() {
     return ElevatedButton(
-      onPressed:
-      _isGeneratingCoverLetter || _resumeText == null || _resumeText!.isEmpty
+      onPressed: _isGeneratingCoverLetter ||
+              _resumeText == null ||
+              _resumeText!.isEmpty
           ? null
           : _generateCoverLetter,
       child: Row(
@@ -335,7 +335,6 @@ class _CareerScreenState extends State<CareerScreen> {
               : const Icon(Icons.description),
           const SizedBox(width: 8),
           const Text('Write a Cover Letter'),
-          const Divider(),
         ],
       ),
     );
@@ -396,26 +395,53 @@ class _CareerScreenState extends State<CareerScreen> {
             const SizedBox(height: 20),
             buildResumeUploadSection(),
             const SizedBox(height: 20),
-            buildRecommendationButton(),
-            if (_isResumeUploaded) ...[
-              const SizedBox(height: 16),
-              buildRecommendationAdvancedOptions(),
-            ],
-            buildCoverLetterButton(),
-            if (_isResumeUploaded) ...[
-              const SizedBox(height: 16),
-              buildCoverLetterAdvancedOptions(),
-            ],
-            buildProfileHeadlineButton(),
-            if (_showRecommendationTextBox) ...[
-              buildRecommendationTextField(),
-            ],
-            if (_showProfileHeadlineTextBox) ...[
-              buildProfileHeadlineTextField(),
-            ],
-            if (_showCoverLetterTextBox) ...[
-              buildCoverLetterTextField(),
-            ],
+            Container(
+                margin: const EdgeInsets.symmetric(vertical: 1),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.black26,
+                      width: 1.0,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    buildRecommendationButton(),
+                    if (_isResumeUploaded) buildRecommendationAdvancedOptions(),
+                  ],
+                )),
+            Container(
+                margin: const EdgeInsets.symmetric(vertical: 1),
+                decoration: const BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.black26,
+                      width: 1.0,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    buildCoverLetterButton(),
+                    if (_isResumeUploaded) buildCoverLetterAdvancedOptions(),
+                  ],
+                )),
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 1),
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.black26,
+                    width: 1.0,
+                  ),
+                ),
+              ),
+              child: buildProfileHeadlineButton(),
+            ),
+            if (_showRecommendationTextBox) buildRecommendationTextField(),
+            if (_showProfileHeadlineTextBox) buildProfileHeadlineTextField(),
+            if (_showCoverLetterTextBox) buildCoverLetterTextField(),
           ],
         ),
       ),
