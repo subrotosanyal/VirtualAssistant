@@ -19,15 +19,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-java@v2
+    # external action which clones the current directory in the 
+    # virtual machine
+    - uses: actions/checkout@v2 
+    
+    # external action to install Flutter stable on the virtual machine
+    - uses: subosito/flutter-action@v2 
       with:
-        distribution: 'zulu'
-        java-version: '11'
-    - uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.7.7'
+        channel: stable
+
+    # is always useful to know the Flutter version
+    - run: flutter --version
+
+    # dependencies installation
     - run: flutter pub get
+
+    # static analysis check
+    - run: flutter analyze
+
+    # tests check
     - run: flutter test
-    - run: flutter build apk
-    - run: flutter build appbundle  
