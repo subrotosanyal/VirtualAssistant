@@ -1,3 +1,6 @@
+[![Build Application](https://github.com/subrotosanyal/VirtualAssistant/actions/workflows/build_app.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/subrotosanyal/VirtualAssistant/actions/workflows/build_app.yml)
+[![Build Application](https://github.com/subrotosanyal/VirtualAssistant/actions/workflows/build_app.yml/badge.svg?branch=main&event=schedule)](https://github.com/subrotosanyal/VirtualAssistant/actions/workflows/build_app.yml)
+
 # Virtual Assistant
 
 The Virtual Assistant is an intelligent application designed to provide various functionalities which offers users a comprehensive and personalized digital assistant experience.
