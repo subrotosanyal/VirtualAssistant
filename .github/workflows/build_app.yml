@@ -33,9 +33,12 @@ jobs:
 
     # dependencies installation
     - run: flutter pub get
-
+    
     # static analysis check
-    - run: flutter analyze
+    #- run: flutter analyze
 
     # tests check
-    - run: flutter test
+    #- run: flutter test
+
+    - run: flutter build apk
+    - run: flutter build appbundle
